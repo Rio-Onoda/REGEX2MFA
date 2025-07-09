@@ -1,8 +1,7 @@
-
 import java.util.List;
 import java.util.ArrayList;
 
-class State {
+class State {//状態
     int id;
 
     public State(int id) {
@@ -10,11 +9,11 @@ class State {
     }
 }
 
-class Transition {
-    State q;
-    State p;
-    char symbol; // q --symbol--> p
-    Memoryinstruction memoryinstruction;
+class Transition {//遷移
+    State q;//起点の状態
+    State p;//遷移先状態
+    char symbol; // q --symbol--> p　記号
+    Memoryinstruction memoryinstruction;//メモリ命令に関するデータ構造
 
     public Transition(State q, char symbol, State p, Memoryinstruction meminst) {// constructor
         this.q = q;
@@ -27,10 +26,10 @@ class Transition {
     public String toString() {
         String memInstr;
         switch (memoryinstruction.instructionId) {
-            case 1: memInstr = "OPEN"; break;
-            case -1: memInstr = "CLOSE"; break;
-            case 0: memInstr = "STAY"; break;
-            case 3: memInstr = "VAR"; break;
+            case 1: memInstr = "OPEN"; break;//o-transiton
+            case -1: memInstr = "CLOSE"; break;//c-transition
+            case 0: memInstr = "STAY"; break;//sigma-transition
+            case 2: memInstr = "VAR"; break;m-transiton
             default: memInstr = "UNKNOWN"; break;
     }
     return String.format("δ(%d, %s) → %d   [mem: (%d, %s)]",
@@ -51,7 +50,7 @@ class Memoryinstruction {
     }
 }
 
-class MFA {
+class MFA {//部分MFA用
     State start;
     State end;
     List<Transition> transitions;
@@ -64,17 +63,17 @@ class MFA {
 //ASTをMFAにするクラス
 
 public class GenMFA {
-    private final int VARIABLE = 3;
+    private final int VARIABLE = 2;
     private final int STAY = 0;
     private final int OPEN = 1;
     private final int CLOSE = -1;
     private int stateId = 0;
 
     private State newState() {
-        return new State(stateId++);
+        return new State(stateId++);//状態割り当て
     }
 
-    public MFA builders(RegexNode node) {
+    public MFA builders(RegexNode node) {//木を辿る
         if (node instanceof CharNode) {
             return UnitMFA((CharNode) node);
         } else if (node instanceof ConcatNode) {
@@ -92,7 +91,7 @@ public class GenMFA {
         throw new IllegalArgumentException("Unknown node type");
     }
 
-    private MFA UnitMFA(CharNode node) {
+    private MFA UnitMFA(CharNode node) {//記号1文字に対するMFA
         State s1 = newState();
         State s2 = newState();
         Transition t = new Transition(s1, node.symbol, s2, 
@@ -105,7 +104,7 @@ public class GenMFA {
         return submfa;
     }
 
-    private MFA ConcatMFA(ConcatNode node) {
+    private MFA ConcatMFA(ConcatNode node) {//MFAの連結
         MFA m1 = builders(node.left);
         MFA m2 = builders(node.right);
 
@@ -125,7 +124,7 @@ public class GenMFA {
     }
 
 
-    private MFA UnionMFA(UnionNode node) {
+    private MFA UnionMFA(UnionNode node) {//和集合
         MFA m1 = builders(node.left);
         MFA m2 = builders(node.right);
 
@@ -147,7 +146,7 @@ public class GenMFA {
         return submfa;
     }
 
-    private MFA StarMFA(StarNode node) {
+    private MFA StarMFA(StarNode node) {//繰り返し
         MFA mfa = builders(node.child);
         State start = newState();
         State end = newState();
@@ -167,7 +166,7 @@ public class GenMFA {
     }
 
    
-    private MFA CaptureMFA(CaptureNode node) {
+    private MFA CaptureMFA(CaptureNode node) {//後方参照の (i と )iに対応
         MFA submfa = builders(node.child);
         State start = newState();
         State end = newState();
@@ -191,7 +190,7 @@ public class GenMFA {
         return mfa;
     }
 
-    private MFA BackrefMFA(BackrefNode node) {
+    private MFA BackrefMFA(BackrefNode node) {//後方参照の \i に対応
         State start = newState();
         State end = newState();
         Transition t = new Transition(start, 'v', end, 
@@ -205,13 +204,9 @@ public class GenMFA {
         return mfa;
     }
     
-    public void printtransitions(MFA mfa) {
+    public void printtransitions(MFA mfa) {//全ての遷移の表示
         for (Transition t : mfa.transitions) {
             System.out.println(t);
         }
     }
-
-
 }
-
-//simulation of makemfa class
