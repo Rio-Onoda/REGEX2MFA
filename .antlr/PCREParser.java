@@ -1,4 +1,4 @@
-// Generated from c:/Users/81701/OneDrive/work/myantlr/src/PCRE.g4 by ANTLR 4.13.1
+// Generated from PCRE.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue", "this-escape"})
 public class PCREParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.13.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -154,6 +154,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitPcre(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitPcre(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PcreContext pcre() throws RecognitionException {
@@ -211,6 +216,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitAlternation(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitAlternation(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -280,6 +290,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitExpr(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ExprContext expr() throws RecognitionException {
@@ -335,6 +350,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitElement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitElement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -443,6 +463,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitAtom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitAtom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -644,6 +669,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCapture(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCapture(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -904,6 +934,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitAtomic_group(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitAtomic_group(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Atomic_groupContext atomic_group() throws RecognitionException {
@@ -957,6 +992,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitLookaround(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitLookaround(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1055,6 +1095,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitBackreference(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitBackreference(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1222,6 +1267,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitSubroutine_reference(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitSubroutine_reference(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1466,6 +1516,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitConditional_pattern(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitConditional_pattern(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Conditional_patternContext conditional_pattern() throws RecognitionException {
@@ -1633,6 +1688,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitComment(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitComment(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CommentContext comment() throws RecognitionException {
@@ -1720,6 +1780,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitQuantifier(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitQuantifier(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2065,6 +2130,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitOption_setting(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitOption_setting(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Option_settingContext option_setting() throws RecognitionException {
@@ -2298,6 +2368,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitOption_setting_flag(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitOption_setting_flag(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Option_setting_flagContext option_setting_flag() throws RecognitionException {
@@ -2371,6 +2446,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitBacktracking_control(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitBacktracking_control(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2518,6 +2598,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCallout(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCallout(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CalloutContext callout() throws RecognitionException {
@@ -2586,6 +2671,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitNewline_conventions(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitNewline_conventions(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2682,6 +2772,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCharacter(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCharacter(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2922,6 +3017,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCharacter_type(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCharacter_type(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Character_typeContext character_type() throws RecognitionException {
@@ -3148,6 +3248,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCharacter_class(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCharacter_class(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Character_classContext character_class() throws RecognitionException {
@@ -3267,6 +3372,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCharacter_class_atom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCharacter_class_atom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Character_class_atomContext character_class_atom() throws RecognitionException {
@@ -3363,6 +3473,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCharacter_class_range(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCharacter_class_range(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Character_class_rangeContext character_class_range() throws RecognitionException {
@@ -3408,6 +3523,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCharacter_class_range_atom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCharacter_class_range_atom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3484,6 +3604,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitPosix_character_class(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitPosix_character_class(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Posix_character_classContext posix_character_class() throws RecognitionException {
@@ -3544,6 +3669,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitAnchor(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitAnchor(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3617,6 +3747,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitMatch_point_reset(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitMatch_point_reset(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Match_point_resetContext match_point_reset() throws RecognitionException {
@@ -3661,6 +3796,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitQuoting(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitQuoting(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3742,6 +3882,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitDigits(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitDigits(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DigitsContext digits() throws RecognitionException {
@@ -3808,6 +3953,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitDigit(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitDigit(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DigitContext digit() throws RecognitionException {
@@ -3868,6 +4018,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitHex(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitHex(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4013,6 +4168,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitLetters(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitLetters(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LettersContext letters() throws RecognitionException {
@@ -4116,6 +4276,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitLetter(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitLetter(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LetterContext letter() throws RecognitionException {
@@ -4173,6 +4338,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4315,6 +4485,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitOther(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitOther(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final OtherContext other() throws RecognitionException {
@@ -4364,6 +4539,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitUtf(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitUtf(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UtfContext utf() throws RecognitionException {
@@ -4407,6 +4587,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitUcp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitUcp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4466,6 +4651,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitNo_auto_possess(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitNo_auto_possess(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4549,6 +4739,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitNo_start_opt(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitNo_start_opt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final No_start_optContext no_start_opt() throws RecognitionException {
@@ -4610,6 +4805,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCr(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CrContext cr() throws RecognitionException {
@@ -4650,6 +4850,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitLf(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitLf(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4693,6 +4898,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCrlf(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCrlf(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4743,6 +4953,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitAnycrlf(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitAnycrlf(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4795,6 +5010,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitAny(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitAny(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4853,6 +5073,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitLimit_match(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitLimit_match(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4928,6 +5153,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitLimit_recursion(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitLimit_recursion(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5007,6 +5237,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitBsr_anycrlf(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitBsr_anycrlf(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Bsr_anycrlfContext bsr_anycrlf() throws RecognitionException {
@@ -5075,6 +5310,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitBsr_unicode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitBsr_unicode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Bsr_unicodeContext bsr_unicode() throws RecognitionException {
@@ -5140,6 +5380,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitAccept_(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitAccept_(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Accept_Context accept_() throws RecognitionException {
@@ -5190,6 +5435,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitFail(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitFail(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5247,6 +5497,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitMark(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitMark(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MarkContext mark() throws RecognitionException {
@@ -5297,6 +5552,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitCommit(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitCommit(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5350,6 +5610,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitPrune(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitPrune(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PruneContext prune() throws RecognitionException {
@@ -5399,6 +5664,11 @@ public class PCREParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitSkip(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitSkip(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SkipContext skip() throws RecognitionException {
@@ -5445,6 +5715,11 @@ public class PCREParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof PCREListener ) ((PCREListener)listener).exitThen(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof PCREVisitor ) return ((PCREVisitor<? extends T>)visitor).visitThen(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
