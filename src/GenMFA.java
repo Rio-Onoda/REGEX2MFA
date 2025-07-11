@@ -1,7 +1,7 @@
 import java.util.List;
 import java.util.ArrayList;
 
-class State {//状態
+class State {
     int id;
 
     public State(int id) {
@@ -9,11 +9,11 @@ class State {//状態
     }
 }
 
-class Transition {//遷移
-    State q;//起点の状態
-    State p;//遷移先状態
-    char symbol; // q --symbol--> p　記号
-    Memoryinstruction memoryinstruction;//メモリ命令に関するデータ構造
+class Transition {
+    State q;
+    State p;
+    char symbol; // q --symbol--> p
+    Memoryinstruction memoryinstruction;
 
     public Transition(State q, char symbol, State p, Memoryinstruction meminst) {// constructor
         this.q = q;
@@ -26,10 +26,10 @@ class Transition {//遷移
     public String toString() {
         String memInstr;
         switch (memoryinstruction.instructionId) {
-            case 1: memInstr = "OPEN"; break;//o-transiton
-            case -1: memInstr = "CLOSE"; break;//c-transition
-            case 0: memInstr = "STAY"; break;//sigma-transition
-            case 2: memInstr = "VAR"; break;m-transiton
+            case 1: memInstr = "OPEN"; break;
+            case -1: memInstr = "CLOSE"; break;
+            case 0: memInstr = "STAY"; break;
+            case 2: memInstr = "VAR"; break;
             default: memInstr = "UNKNOWN"; break;
     }
     return String.format("δ(%d, %s) → %d   [mem: (%d, %s)]",
@@ -50,7 +50,7 @@ class Memoryinstruction {
     }
 }
 
-class MFA {//部分MFA用
+class MFA {
     State start;
     State end;
     List<Transition> transitions;
@@ -70,10 +70,10 @@ public class GenMFA {
     private int stateId = 0;
 
     private State newState() {
-        return new State(stateId++);//状態割り当て
+        return new State(stateId++);
     }
 
-    public MFA builders(RegexNode node) {//木を辿る
+    public MFA builders(RegexNode node) {
         if (node instanceof CharNode) {
             return UnitMFA((CharNode) node);
         } else if (node instanceof ConcatNode) {
@@ -91,7 +91,7 @@ public class GenMFA {
         throw new IllegalArgumentException("Unknown node type");
     }
 
-    private MFA UnitMFA(CharNode node) {//記号1文字に対するMFA
+    private MFA UnitMFA(CharNode node) {
         State s1 = newState();
         State s2 = newState();
         Transition t = new Transition(s1, node.symbol, s2, 
@@ -104,12 +104,11 @@ public class GenMFA {
         return submfa;
     }
 
-    private MFA ConcatMFA(ConcatNode node) {//MFAの連結
+    private MFA ConcatMFA(ConcatNode node) {
         MFA m1 = builders(node.left);
         MFA m2 = builders(node.right);
 
-        Transition t = new Transition(m1.end, 'ε', m2.start, 
-        new Memoryinstruction(0, STAY)); // EPSILON Transition
+        Transition t = new Transition(m1.end, 'ε', m2.start, new Memoryinstruction(0, STAY)); // EPSILON Transition
 
         List<Transition> transitions = new ArrayList<>();
         transitions.addAll(m1.transitions);
@@ -124,7 +123,7 @@ public class GenMFA {
     }
 
 
-    private MFA UnionMFA(UnionNode node) {//和集合
+    private MFA UnionMFA(UnionNode node) {
         MFA m1 = builders(node.left);
         MFA m2 = builders(node.right);
 
@@ -146,7 +145,7 @@ public class GenMFA {
         return submfa;
     }
 
-    private MFA StarMFA(StarNode node) {//繰り返し
+    private MFA StarMFA(StarNode node) {
         MFA mfa = builders(node.child);
         State start = newState();
         State end = newState();
@@ -166,7 +165,7 @@ public class GenMFA {
     }
 
    
-    private MFA CaptureMFA(CaptureNode node) {//後方参照の (i と )iに対応
+    private MFA CaptureMFA(CaptureNode node) {
         MFA submfa = builders(node.child);
         State start = newState();
         State end = newState();
@@ -190,10 +189,10 @@ public class GenMFA {
         return mfa;
     }
 
-    private MFA BackrefMFA(BackrefNode node) {//後方参照の \i に対応
+    private MFA BackrefMFA(BackrefNode node) {
         State start = newState();
         State end = newState();
-        Transition t = new Transition(start, 'v', end, 
+        Transition t = new Transition(start, '\\', end, 
         new Memoryinstruction(node.captureid,VARIABLE));
         
         MFA mfa = new MFA();
@@ -204,7 +203,7 @@ public class GenMFA {
         return mfa;
     }
     
-    public void printtransitions(MFA mfa) {//全ての遷移の表示
+    public void printtransitions(MFA mfa) {
         for (Transition t : mfa.transitions) {
             System.out.println(t);
         }
