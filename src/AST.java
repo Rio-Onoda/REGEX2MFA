@@ -47,7 +47,7 @@ public class AST extends PCREBaseVisitor<RegexNode> {
             switch (q) {
                 case "*": return new StarNode(base);//0回以上
                 case "+": return new ConcatNode(base, new StarNode(base));//1回以上
-                default: throw new IllegalArgumentException("未知の量指定子: " + q);
+                default: throw new IllegalArgumentException("unknown quantifier: " + q);
             }
         }
         
@@ -76,13 +76,20 @@ public class AST extends PCREBaseVisitor<RegexNode> {
 
     @Override
     public RegexNode visitCapture(PCREParser.CaptureContext ctx) {
-    System.out.println("visitCapture: " + ctx.getText());
-    System.out.println("alternation is " + ctx.alternation());
+    //System.out.println("visitCapture: " + ctx.getText());
+    //System.out.println("alternation is " + ctx.alternation());
    
-    if (ctx.alternation() != null) {
+    if (ctx.getText().startsWith("(?:")) {
+       
+        RegexNode child = visit(ctx.alternation());
+        return new NonCaptureNode(child);
+        
+        
+    }else if (ctx.alternation() != null) {
         RegexNode child = visit(ctx.alternation());
         return new CaptureNode(child, captureCounter++);
-    } 
+    }
+
     throw new IllegalArgumentException("CaptureContextにalternationがありません: " + ctx.getText());
 }
 
