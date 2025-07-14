@@ -32,7 +32,7 @@ class Transition {
             case 2: memInstr = "VAR"; break;
             default: memInstr = "UNKNOWN"; break;
     }
-    return String.format("δ(%d, %s) → %d   [mem: (%d, %s)]",
+    return String.format("δ(%d, %s) = %d   [mem: (%d, %s)]",
         q.id, symbol == 'ε' ? "ε" : symbol, p.id,
         memoryinstruction.captureId, memInstr
     );
@@ -84,7 +84,10 @@ public class GenMFA {
             return StarMFA((StarNode) node);
         } else if (node instanceof CaptureNode) {
             return CaptureMFA((CaptureNode) node);     
-        } else if (node instanceof BackrefNode) {
+        } else if(node instanceof NonCaptureNode) {
+            return NonCaptureMFA((NonCaptureNode) node);
+        }
+        else if (node instanceof BackrefNode) {
             return BackrefMFA((BackrefNode) node);     
         }
 
@@ -186,6 +189,12 @@ public class GenMFA {
         mfa.transitions.addAll(submfa.transitions);
         mfa.transitions.add(t2);
 
+        return mfa;
+    }
+
+
+    private MFA NonCaptureMFA(NonCaptureNode node) {
+        MFA mfa = builders(node.child);
         return mfa;
     }
 
