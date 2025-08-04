@@ -1,5 +1,4 @@
-<h1>REWBをMFAにして文字列をシュミレーション</h1>
-<h2>
-・grammerfile->AST<br>                         
+<h1>REWBをMFAにして文字列の受理判定をシュミレーション</h1>
+・grammer file->AST<br>                         
 ・AST->MFA<br>
-・MFAによるsimulation</h2>
+・MFAによる入力文字列の受理判定
