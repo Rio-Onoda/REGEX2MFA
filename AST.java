@@ -49,7 +49,66 @@ public class AST extends PCREBaseVisitor<RegexNode> {
             switch (q) {
                 case "*": return new StarNode(base);//0回以上
                 case "+": return new ConcatNode(base, new StarNode(base));//1回以上
-                default: throw new IllegalArgumentException("unknown quantifier: " + q);
+
+                default: 
+                    if ((q.contains("{"))&&(q.contains("}"))){
+                        int len = q.length();
+                        boolean nolimit = false;
+                        if(len < 3) throw new IllegalArgumentException("unknown quantifier: " + q);
+
+                        if(q.contains(",")){
+                            String r = q.substring(1,len-1);
+                            
+                            if((q.substring(len-2,len-1)).equals(",")){
+                                nolimit = true;//下限のみに移行
+                            }else{//上限あり
+
+                                String [] range = r.split(",");
+                                int s = Integer.parseInt(range[0]);
+                                int t = Integer.parseInt(range[1]);
+                                
+                                RegexNode nodeelem = base;
+                                for (int i = 1;i < s; i++){
+                                    nodeelem = new ConcatNode(nodeelem,base);
+                                }
+
+                                RegexNode nodelst = nodeelem;
+                                for (int i = s;i < t; i++){
+                                    nodeelem = new ConcatNode(nodeelem,base);
+                                    nodelst = new UnionNode(nodelst,nodeelem);
+                                }
+                            
+                                return nodelst;
+                            }
+                        }
+                        
+                        if((!q.contains(",")) || nolimit){//下限のみ
+                            String r;
+
+                            if (nolimit) r = q.substring(1,len-2);
+                            else  r = q.substring(1,len-1);
+
+                            int s = Integer.parseInt(r);
+
+                            if(s<1){
+                                return new StarNode(base);//0回以上
+                            }else{ 
+                                RegexNode node = base;
+                                for (int i = 1;i < s; i++){
+                                    node = new ConcatNode(node,base);
+                                }
+
+                                node = new ConcatNode(node,new StarNode(base));
+
+                                return node;
+                            }
+
+                           
+                        
+                        }
+                    }else{
+                        throw new IllegalArgumentException("unknown quantifier: " + q);
+                    }
             }
         }
         
