@@ -1,6 +1,6 @@
 public class CharNode extends RegexNode {
-    public final char symbol;
-    public CharNode(char symbol) { 
+    public final String symbol;
+    public CharNode(String symbol) { 
         this.symbol = symbol; 
     }  
 

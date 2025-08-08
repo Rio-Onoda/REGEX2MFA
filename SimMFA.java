@@ -88,7 +88,7 @@ public class SimMFA {
             int size = closure.size();
             for (int s : new ArrayList<>(closure)) { // 新しいリストを作成してイテレート
                 for (Transition t : M.transitions) {
-                    if (t.q.id == s && t.symbol == 'ε') {
+                    if (t.q.id == s && t.symbol.equals("ε") ) {
                         closure.add(t.p.id); // ε遷移の先の状態を追加
                     }
                 }
@@ -116,8 +116,8 @@ public class SimMFA {
                 }
 
                 if(ecl.contains(t.q.id)) {//ε-closureに含まれる状態ならば
-                    if(t.symbol == C.remain.charAt(0)) {//シンボルが残りの文字列の先頭と同じならば
-                        //System.out.println(C.remain.charAt(0)  + "  " + t.symbol);
+                     if((t.symbol.charAt(0))==(C.remain.charAt(0))) {//シンボルが残りの文字列の先頭と同じならば
+                        System.out.println(C.remain.charAt(0)  + "  " + t.symbol);
                         
 
                         String nextRemain = C.remain.substring(1);//次の残りの文字列
@@ -129,7 +129,7 @@ public class SimMFA {
                         }
                         return true;
 
-                    }else if( t.symbol == '\\'){// memory transition
+                    }else if( t.symbol.equals("\\")){// memory transition
                         String content = C.memorycontents.get(t.memoryinstruction.captureId-1);//メモリ内容を取得
                         String prefix;
                         if(C.remain.length() >= content.length()){
@@ -145,6 +145,9 @@ public class SimMFA {
                             //System.out.println("m-transition error: " + prefix + " != " + content);
                             return false;//メモリ内容と現在の入力の残りに食い違いがある
                         }
+                    }else if(t.symbol.length() > 1){
+                        return true;
+
                     }
                     count++;
                 }
@@ -197,45 +200,78 @@ public class SimMFA {
 
         if(!C.remain.isEmpty()){
             for(Transition t : M.transitions){//遷移を辿る
-                if(t.q.id == C.state.id && t.symbol == C.remain.charAt(0)){//sigma-transition
-                    
-                    path.add(t);//経路を記録
-                    readable = false;//読み取り可能とする
+                if(t.q.id == C.state.id ){//sigma-transition
+                    if((t.symbol.charAt(0)==C.remain.charAt(0)) && t.symbol.length() == 1){
+                        path.add(t);//経路を記録
+                        readable = false;//読み取り可能とする
 
-                    char ch = t.symbol;
-                    Configuration Du = new Configuration();
-                    Du.copyConfig(C);
-                    Du.state = t.p;
+                        String sym = t.symbol;
+                        Configuration Du = new Configuration();
+                        Du.copyConfig(C);
+                        Du.state = t.p;
                         
-                    //1文字読む(sigma-transition)
-                    Du.remain = Du.remain.substring(1);//先頭1文字切り出し    
-                    for(int i=0;i<Du.memorystates.size();i++){//openメモリへの書き込み
-                        if(Du.memorystates.get(i) == true){//openメモリならば
+                        //1文字読む(sigma-transition)
+                        Du.remain = Du.remain.substring(1);//先頭1文字切り出し    
+                        for(int i=0;i<Du.memorystates.size();i++){//openメモリへの書き込み
+                            if(Du.memorystates.get(i) == true){//openメモリならば
                             
-                            if(Du.memorycontents.get(i) == null){//ヌルチェック
-                                Du.memorycontents.set(i,"");//メモリ内容は空とする
-                            }  
-                            Du.memorycontents.set(i,Du.memorycontents.get(i)+ch);//指定のメモリに後ろから1字ずつ書き込む
-                        
-                        }
-                   
-                    }
-                    //System.out.println(t);
-                    simulation(M,Du,level+1);
-                    
-                }
-            }
+                                if(Du.memorycontents.get(i) == null){//ヌルチェック
+                                    Du.memorycontents.set(i,"");//メモリ内容は空とする
+                                }  
+                                Du.memorycontents.set(i,Du.memorycontents.get(i)+sym);//指定のメモリに後ろから1字ずつ書き込む
 
+                            }
+                        }
+                        //System.out.println(t);
+                        simulation(M,Du,level+1);
+
+                    }else if(t.symbol.length() > 1){//特殊ラベル
+                        String spsym = t.symbol;
+                        String [] parts = spsym.split("-");
+
+                        char from = parts[0].charAt(0);
+                        char to = parts[1].charAt(0);
+
+                        for (char i = from; i<= to;i++){
+                            if(i == C.remain.charAt(0)){//シンボルが残りの文字列の先頭と同じならば
+                                path.add(t);//経路を記録
+                                readable = false;//読み取り可能とする
+
+                                Configuration Du = new Configuration();
+                                Du.copyConfig(C);
+                                Du.state = t.p;
+                                
+                                //1文字読む(sigma-transition)
+                                Du.remain = Du.remain.substring(1);//先頭1文字切り出し    
+                                for(int j=0;j<Du.memorystates.size();j++){//openメモリへの書き込み
+                                    if(Du.memorystates.get(j) == true){//openメモリならば
+                            
+                                        if(Du.memorycontents.get(j) == null){//ヌルチェック
+                                            Du.memorycontents.set(j,"");//メモリ内容は空とする
+                                        }  
+                                        Du.memorycontents.set(j,Du.memorycontents.get(j)+i);//指定のメモリに後ろから1字ずつ書き込む
+
+                                    }
+                                }
+                                //System.out.println(t);
+                                simulation(M,Du,level+1);
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
         }
-        
-        //読む記号がない場合
+            //読む記号がない場合
         for (Transition t : M.transitions){
-            if(t.q.id == C.state.id && (t.symbol == 'ε' || t.symbol == '\\')){//ε遷移の場合
-                    
-                    Configuration Du = new Configuration();//計算状況のコピー
-                    Du.copyConfig(C);
-                    Du.state = t.p;//次の状態にセット
-                    path.add(t);//経路を記録
+            if(t.q.id == C.state.id && (t.symbol.equals("ε") || t.symbol.equals("\\"))){//ε遷移の場合
+
+                Configuration Du = new Configuration();//計算状況のコピー
+                Du.copyConfig(C);
+                Du.state = t.p;//次の状態にセット
+                path.add(t);//経路を記録
        
                     switch(t.memoryinstruction.instructionId){
                         case 0://ε遷移　sigma-transition
