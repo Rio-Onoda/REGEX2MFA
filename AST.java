@@ -1,4 +1,5 @@
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
+import java.util.List;
 
 abstract class RegexNode {}
 
@@ -129,6 +130,10 @@ public class AST extends PCREBaseVisitor<RegexNode> {
             return visitBackreference(ctx.backreference());
         }
 
+        if (ctx.character_class()!= null) {
+            return visitCharacter_class(ctx.character_class());
+        }
+
         if(ctx.getText().equals("ε")) {
             return new CharNode('ε'); // εを表すノード
         }
@@ -166,5 +171,63 @@ public class AST extends PCREBaseVisitor<RegexNode> {
         return new BackrefNode(refId);
     }
 
+    @Override
+    public RegexNode visitCharacter_class(PCREParser.Character_classContext ctx){
+        System.out.println("c"+ctx.getText());
+        // character_class_atom()はリストなので、すべてを処理する必要がある
+
+        if (ctx.character_class_atom() != null && !ctx.character_class_atom().isEmpty()) {
+            RegexNode node = visitCharacter_class_atom(ctx.character_class_atom().get(0));
+            
+            for (int i = 1; i < ctx.character_class_atom().size(); i++) {
+                node = new UnionNode(node, visitCharacter_class_atom(ctx.character_class_atom().get(i)));
+            }
+        
+            return node;
+        
+        }
+        System.out.println("hoge");
+        return null;
+    }
+
+    @Override
+    public RegexNode visitCharacter_class_atom(PCREParser.Character_class_atomContext ctx){
+        System.out.println("charatom:"+ ctx.getText());
+        if (ctx.character_class_range() != null) {
+            return visitCharacter_class_range(ctx.character_class_range());
+        }
+            
+       
+        return new CharNode(ctx.getText().charAt(0));
+    }
+
+    @Override
+    public RegexNode visitCharacter_class_range(PCREParser.Character_class_rangeContext ctx){
+        System.out.println("charrange:"+ ctx.getText());
+        if (ctx.character_class_range_atom() != null && !ctx.character_class_range_atom().isEmpty()) {
+            RegexNode node = visitCharacter_class_range_atom(ctx.character_class_range_atom().get(0));
+
+            for (int i = 1; i < ctx.character_class_range_atom().size(); i++) {
+                node = new UnionNode(node, visitCharacter_class_range_atom(ctx.character_class_range_atom().get(i)));
+            }
+        
+            return node;
+        
+        }
+        System.out.println("piyo");
+        return null;
+    }
+
+    @Override
+    public RegexNode visitCharacter_class_range_atom(PCREParser.Character_class_range_atomContext ctx){
+        System.out.println("charrangeatom:"+ ctx.getText());
+        if (ctx.getText().length() == 1) {
+            return new CharNode(ctx.getText().charAt(0));
+        } else {
+        // 1文字でない場合の処理（例: エスケープ文字など）
+            return new CharNode(ctx.getText().charAt(0)); // 仮実装
+        }
+    }
     
+
 }
