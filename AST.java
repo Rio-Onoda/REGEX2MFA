@@ -130,6 +130,10 @@ public class AST extends PCREBaseVisitor<RegexNode> {
             return visitBackreference(ctx.backreference());
         }
 
+        if (ctx.character_type()!= null) {
+            return visitCharacter_type(ctx.character_type());
+        }
+
         if (ctx.character_class()!= null) {
             return visitCharacter_class(ctx.character_class());
         }
@@ -172,15 +176,57 @@ public class AST extends PCREBaseVisitor<RegexNode> {
     }
 
     @Override
-    public RegexNode visitCharacter_class(PCREParser.Character_classContext ctx){
-        System.out.println("c"+ctx.getText());
-        // character_class_atom()はリストなので、すべてを処理する必要がある
+    public RegexNode visitCharacter_type(PCREParser.Character_typeContext ctx){
+        String seq = ctx.getText();
+        RegexNode salpha = new RangeNode("a","z");
+        RegexNode lalpha = new RangeNode("A","Z");
+        RegexNode digit = new RangeNode("0","9");
+        RegexNode under = new CharNode("_");
+        RegexNode word = new UnionNode(new UnionNode(new UnionNode(salpha,lalpha), digit),under);
+               
 
+        switch (seq){
+            case ".":
+                return new WildNode();
+            
+            case "\\d":
+                return digit;
+
+            case "\\D":
+                return new NegNode(digit);
+           
+            case "\\w": 
+                return word; 
+            
+            case "\\W": 
+                return new NegNode(word);
+
+
+
+            default:
+                return null;
+
+        }
+
+    
+    }
+
+    @Override
+    public RegexNode visitCharacter_class(PCREParser.Character_classContext ctx){
+        System.out.println("charclass:"+ctx.getText());
+        // character_class_atom()はリストなので、すべてを処理する必要がある
+        
         if (ctx.character_class_atom() != null && !ctx.character_class_atom().isEmpty()) {
             RegexNode node = visitCharacter_class_atom(ctx.character_class_atom().get(0));
             
             for (int i = 1; i < ctx.character_class_atom().size(); i++) {
                 node = new UnionNode(node, visitCharacter_class_atom(ctx.character_class_atom().get(i)));
+            }
+
+            if (ctx.getText().charAt(1)=='^'){
+            // 否定の文字クラス
+                System.out.println("NegNode created");
+                return new NegNode(node);
             }
         
             return node;

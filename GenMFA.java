@@ -90,8 +90,13 @@ public class GenMFA {
             return BackrefMFA((BackrefNode) node);     
         }else if (node instanceof RangeNode) {
            return RangeMFA((RangeNode) node);
+        }else if (node instanceof NegNode) {
+            return NegMFA((NegNode) node);
+        }else if (node instanceof WildNode){
+            return WildMFA((WildNode) node);
+        } else {
+            throw new IllegalArgumentException("Unknown node type: " + node.getClass().getSimpleName());
         }
-        throw new IllegalArgumentException("Unknown node type");
     }
 
     private MFA UnitMFA(CharNode node) {
@@ -223,6 +228,52 @@ public class GenMFA {
         mfa.transitions = List.of(t); // Add the transition to the MFA object;
         
         return mfa;
+    }
+
+    private MFA NegMFA(NegNode node) {
+        MFA submfa = builders(node.child);
+        String sigmaall="^";
+        State start = newState();
+        State end = newState();
+
+        List<Transition> transitions = new ArrayList<>(submfa.transitions);
+
+        for (Transition t : submfa.transitions) {
+            if(!t.symbol.equals("ε")) {
+                sigmaall += t.symbol;
+                start = t.q;
+                end = t.p;
+            }
+        }
+        System.out.println("new symbol:"+ sigmaall);
+
+
+        for (Transition t : submfa.transitions) {
+            if(!t.symbol.equals("ε") && (t.symbol.length() < 2 || sigmaall.contains(t.symbol))) {
+                transitions.remove(t);
+            }
+        }
+        transitions.add(new Transition(start, sigmaall, end, new Memoryinstruction(0, STAY)));//遷移を追加
+
+        MFA mfa = new MFA();
+        mfa.start = submfa.start;
+        mfa.end = submfa.end;
+        mfa.transitions = transitions;
+
+        return mfa;
+    }
+
+    private MFA WildMFA(WildNode node) {
+        State s1 = newState();
+        State s2 = newState();
+        Transition t = new Transition(s1, "..", s2, 
+        new Memoryinstruction(0, STAY));
+
+        MFA submfa = new MFA();
+        submfa.start = s1;
+        submfa.end = s2;
+        submfa.transitions = List.of(t);
+        return submfa;
     }
     
     public void printtransitions(MFA mfa) {
