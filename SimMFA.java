@@ -1,35 +1,45 @@
-//TOdo config memorycontentsを文字列ではなくはじめと終わりの位置(int)で記録する
-//n^(2k+2)
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 
+class CapturePointer{
+    int open;
+    int close;
+
+    public CapturePointer(int open,int close){
+        this.open = open;
+        this.close = close;
+    }
+}
+
 class Configuration {
 
     State state;
+    String input;//最初の入力文字列 メモリ参照に利用
     String remain;//残りの文字列
     ArrayList<Boolean> memorystates;//メモリの状態　Open or Closed
-    ArrayList<String> memorycontents;//メモリの内容　
+    ArrayList<CapturePointer> memorycapptr;//メモリの内容　
     int visittransition;//訪れた遷移のカウント
 
     public void config(State q,String w){//計算状況のコンストラクタ
         this.state = q;
+        this.input = w;
         this.remain = w;
         this.memorystates = new ArrayList<>();
-        this.memorycontents = new ArrayList<>();
+        this.memorycapptr = new ArrayList<>();
         this.visittransition = 0;//訪れた遷移のカウント
         
     }
 
     void copyConfig(Configuration C){//計算状況のコピー
         this.state = C.state;
+        this.input = C.input;
         this.remain = C.remain;
-        this.memorycontents = new ArrayList<>(C.memorycontents);
+        this.memorycapptr = new ArrayList<>(C.memorycapptr);
         this.memorystates = new ArrayList<>(C.memorystates);
         this.visittransition = C.visittransition;
 
     }
-
 
     @Override
     public boolean equals(Object o) {//configurationの比較
@@ -38,12 +48,12 @@ class Configuration {
         return (state.id == (other.state.id)
             && remain.equals(other.remain)
             && memorystates.equals(other.memorystates)
-            && memorycontents.equals(other.memorycontents));
+            && memorycapptr.equals(other.memorycapptr));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(state.id, remain, memorystates, memorycontents);
+        return Objects.hash(state.id, remain, memorystates, memorycapptr);
     }
   
 }
@@ -72,9 +82,9 @@ public class SimMFA {
             }
         }
 
-        for(int i=0;i<numcapture;i++){//メモリ数分確保 idは１から始まるので注意
+        for(int i=0;i<numcapture;i++){//メモリ数分確保 idは1から始まる
             C.memorystates.add(false);//Closed
-            C.memorycontents.add("");//はじめは空
+            C.memorycapptr.add(new CapturePointer(-1,-1));//初めは-1,-1としておく
         }
         
         return C;
@@ -103,7 +113,14 @@ public class SimMFA {
     public boolean isreadable(MFA M, Configuration C, HashSet<Integer> ecl,int final_state,int count) {
         if(C.remain.isEmpty()){
             if(ecl.contains(final_state)) return true;//残りの文字が空なら受理状態がε-closureに含まれるか検査する
-            else return false;//受理状態に到達していない
+            else{//空白文字を読む遷移が無いか確認する
+                for (Transition t : M.transitions) {
+                    if(t.symbol.equals(" ")){
+                        return true;
+                    }
+                }
+                return false;//受理状態に到達していない
+            } 
         }else if(C.remain.length() > 0){
             int skip = count; // 既に調べた遷移はスキップする
             
@@ -117,9 +134,7 @@ public class SimMFA {
 
                 if(ecl.contains(t.q.id)) {//ε-closureに含まれる状態ならば
                      if((t.symbol.charAt(0))==(C.remain.charAt(0))) {//シンボルが残りの文字列の先頭と同じならば
-                        System.out.println(C.remain.charAt(0)  + "  " + t.symbol);
-                        
-
+                    
                         String nextRemain = C.remain.substring(1);//次の残りの文字列
                         if(!nextRemain.contains(t.symbol+"")){
                             //System.out.println(t.symbol + " is no longer in the remaining string");
@@ -130,13 +145,23 @@ public class SimMFA {
                         return true;
 
                     }else if( t.symbol.equals("\\")){// memory transition
-                        String content = C.memorycontents.get(t.memoryinstruction.captureId-1);//メモリ内容を取得
+                        CapturePointer contentptr = C.memorycapptr.get(t.memoryinstruction.captureId-1);//メモリ内容を取得
+                        int open = contentptr.open;
+                        int close = contentptr.close;
+
+                        if(close == -1){//closeが未定義だが\\までのε遷移でmemoryがcloseするとする
+                            return true;
+                        }
+                        int len = close-open;
+
                         String prefix;
-                        if(C.remain.length() >= content.length()){
-                            prefix = C.remain.substring(0,content.length());//現在の入力の残りからメモリ長だけ切り出す
+                        if(C.remain.length() >= len ){
+                            prefix = C.remain.substring(0,len);//現在の入力の残りからメモリ長だけ切り出す
                         }else{
                             prefix = C.remain;
                         }
+
+                        String content = C.input.substring(open,close);
 
                         if(prefix.equals(content)){//メモリ内容と現在の入力の残りを比較
                             //System.out.println("m-transition: " + prefix + " == " + content);
@@ -147,7 +172,6 @@ public class SimMFA {
                         }
                     }else if(t.symbol.length() > 1){
                         return true;
-
                     }
                     count++;
                 }
@@ -156,15 +180,22 @@ public class SimMFA {
         return false;
     }
 
-    public void simulation(MFA M,Configuration C,int level) {//シミュレーション
+    public void printcapptr(Configuration C){
+        for (int i = 0;i < C.memorycapptr.size();i++){
+            System.out.println("memory "+ (i+1) + ":" + C.memorycapptr.get(i).open +"~"+ C.memorycapptr.get(i).close);
+        }
+    }
+
+    public void simulation(MFA M,Configuration C,int readpos,int level) {//シミュレーション
 
         System.out.print("  level " + level);//再帰の階層
         System.out.print("    state " + C.state.id);
-        //System.out.print("    remain " + C.remain);
-        System.out.print("    memorycontents " +C.memorycontents);
-        //System.out.println("    memorystates " + C.memorystates);
+        System.out.print("  readpos " + readpos);
+        System.out.print("    remain " + C.remain);
+         //System.out.println("    memorystates " + C.memorystates);
         HashSet<Integer> ecl = epsilonclosure(M, C);
         System.out.println("    ε-closure " + ecl);
+        printcapptr(C);
         
         if (!readable) {
             if (isreadable(M, C, ecl, M.end.id,C.visittransition)) {//読み取り可能か検査
@@ -212,18 +243,20 @@ public class SimMFA {
                         
                         //1文字読む(sigma-transition)
                         Du.remain = Du.remain.substring(1);//先頭1文字切り出し    
+                        /*
                         for(int i=0;i<Du.memorystates.size();i++){//openメモリへの書き込み
                             if(Du.memorystates.get(i) == true){//openメモリならば
                             
-                                if(Du.memorycontents.get(i) == null){//ヌルチェック
-                                    Du.memorycontents.set(i,"");//メモリ内容は空とする
+                                if(Du.memorycapptr.get(i) == null){//ヌルチェック
+                                    Du.memorycapptr.set(i,"");//メモリ内容は空とする
                                 }  
-                                Du.memorycontents.set(i,Du.memorycontents.get(i)+sym);//指定のメモリに後ろから1字ずつ書き込む
+                                Du.memorycapptr.set(i,Du.memorycapptr.get(i)+sym);//指定のメモリに後ろから1字ずつ書き込む
 
                             }
                         }
-                        //System.out.println(t);
-                        simulation(M,Du,level+1);
+                        System.out.println(t); 
+                        */
+                        simulation(M,Du,readpos+1,level+1);
 
                     }else if(t.symbol.length() > 1){//特殊ラベル
                         String spsym = t.symbol;
@@ -239,18 +272,20 @@ public class SimMFA {
                         
                             //1文字読む(sigma-transition)
                             Du.remain = Du.remain.substring(1);//先頭1文字切り出し    
+                            /*
                             for(int i=0;i<Du.memorystates.size();i++){//openメモリへの書き込み
                                 if(Du.memorystates.get(i) == true){//openメモリならば
                             
-                                if(Du.memorycontents.get(i) == null){//ヌルチェック
-                                    Du.memorycontents.set(i,"");//メモリ内容は空とする
+                                if(Du.memorycapptr.get(i) == null){//ヌルチェック
+                                    Du.memorycapptr.set(i,"");//メモリ内容は空とする
                                 }  
-                                Du.memorycontents.set(i,Du.memorycontents.get(i)+read);//指定のメモリに後ろから1字ずつ書き込む
+                                Du.memorycapptr.set(i,Du.memorycapptr.get(i)+read);//指定のメモリに後ろから1字ずつ書き込む
 
                             }
                         }
-                        //System.out.println(t);
-                        simulation(M,Du,level+1);
+                        System.out.println(t);
+                        */
+                        simulation(M,Du,readpos+1,level+1);
 
 
 
@@ -272,18 +307,19 @@ public class SimMFA {
                                 
                                     //1文字読む(sigma-transition)
                                     Du.remain = Du.remain.substring(1);//先頭1文字切り出し    
-                                
+                                    /*
                                     for(int j=0;j<Du.memorystates.size();j++){//openメモリへの書き込み
                                         if(Du.memorystates.get(j) == true){//openメモリならば
                             
-                                            if(Du.memorycontents.get(j) == null){//ヌルチェック
-                                                Du.memorycontents.set(j,"");//メモリ内容は空とする
+                                            if(Du.memorycapptr.get(j) == null){//ヌルチェック
+                                                Du.memorycapptr.set(j,"");//メモリ内容は空とする
                                             }  
-                                            Du.memorycontents.set(j,Du.memorycontents.get(j)+i);//指定のメモリに後ろから1字ずつ書き込む
+                                            Du.memorycapptr.set(j,Du.memorycapptr.get(j)+i);//指定のメモリに後ろから1字ずつ書き込む
                                         }
                                     }
-                                    //System.out.println(t);
-                                    simulation(M,Du,level+1);
+                                    System.out.println(t);
+                                    */
+                                    simulation(M,Du,readpos+1,level+1);
                                 }
                             }
                         }else if(spsym.charAt(0)=='^' && !spsym.contains("-")){
@@ -300,17 +336,19 @@ public class SimMFA {
 
                                 //1文字読む(sigma-transition)
                                 Du.remain = Du.remain.substring(1);//先頭1文字切り出し
+                                /*
                                 for(int i=0;i<Du.memorystates.size();i++){//openメモリへの書き込み
                                     if(Du.memorystates.get(i) == true){//openメモリならば
 
-                                        if(Du.memorycontents.get(i) == null){//ヌルチェック
-                                            Du.memorycontents.set(i,"");//メモリ内容は空とする
+                                        if(Du.memorycapptr.get(i) == null){//ヌルチェック
+                                            Du.memorycapptr.set(i,"");//メモリ内容は空とする
                                         }
-                                        Du.memorycontents.set(i,Du.memorycontents.get(i)+read);//指定のメモリに後ろから1字ずつ書き込む
+                                        Du.memorycapptr.set(i,Du.memorycapptr.get(i)+read);//指定のメモリに後ろから1字ずつ書き込む
                                     }
                                 }
-                                //System.out.println(t);
-                                simulation(M,Du,level+1);
+                                System.out.println(t);
+                                */
+                                simulation(M,Du,readpos+1,level+1);
                             }
 
                         }else if(spsym.charAt(0)=='^' && spsym.contains("-")){//範囲指定の否定
@@ -348,17 +386,20 @@ public class SimMFA {
 
                                 //1文字読む(sigma-transition)
                                 Du.remain = Du.remain.substring(1);//先頭1文字切り出し
+                                /*
                                 for(int i=0;i<Du.memorystates.size();i++){//openメモリへの書き込み
                                     if(Du.memorystates.get(i) == true){//openメモリならば
 
-                                        if(Du.memorycontents.get(i) == null){//ヌルチェック
-                                            Du.memorycontents.set(i,"");//メモリ内容は空とする
+                                        if(Du.memorycapptr.get(i) == null){//ヌルチェック
+                                            Du.memorycapptr.set(i,"");//メモリ内容は空とする
                                         }
-                                        Du.memorycontents.set(i,Du.memorycontents.get(i)+read);//指定のメモリに後ろから1字ずつ書き込む
+                                        Du.memorycapptr.set(i,Du.memorycapptr.get(i)+read);//指定のメモリに後ろから1字ずつ書き込む
                                     }
                                 }
-                                //System.out.println(t);
-                                simulation(M,Du,level+1);
+                                System.out.println(t);
+                                */
+                                
+                                simulation(M,Du,readpos+1,level+1);
                             }else{
                                 System.out.println("Negation transition is not possible");
                             }
@@ -371,7 +412,7 @@ public class SimMFA {
         
             //読む記号がない場合
         for(Transition t : M.transitions){
-            if(t.q.id == C.state.id && (t.symbol.equals("ε") || t.symbol.equals("\\"))){//ε遷移の場合
+            if(t.q.id == C.state.id && (t.symbol.equals("ε") || t.symbol.equals(" ") || t.symbol.equals("\\"))){//ε遷移の場合
 
                 Configuration Du = new Configuration();//計算状況のコピー
                 Du.copyConfig(C);
@@ -381,47 +422,63 @@ public class SimMFA {
                 switch(t.memoryinstruction.instructionId){
                     case 0://ε遷移　sigma-transition
                         //System.out.println(t);
-                        simulation(M,Du,level+1);
+                        simulation(M,Du,readpos,level+1);
                         break;
                     case 1://ε遷移　o-transition
                         Du.memorystates.set(t.memoryinstruction.captureId-1, true);//指定の番号のメモリをopen
+                        Du.memorycapptr.get(t.memoryinstruction.captureId-1).open = readpos;
                         //System.out.println(t);
-                        simulation(M,Du,level+1); 
+                        simulation(M,Du,readpos,level+1); 
                         break;
 
                     case -1://ε遷移　c-transition
                         Du.memorystates.set(t.memoryinstruction.captureId-1, false);//指定の番号のメモリをclose
+                        Du.memorycapptr.get(t.memoryinstruction.captureId-1).close = readpos;
                         //System.out.println(t);
-                        simulation(M,Du,level+1);
+                        simulation(M,Du,readpos,level+1);
                         break;
 
                     case 2://ε遷移　m-transition
-                        String content = Du.memorycontents.get(t.memoryinstruction.captureId-1);//メモリ内容を取得
-                        String prefix; 
-                        if(Du.remain.length() >= content.length()){
-                            prefix = Du.remain.substring(0,content.length());//現在の入力の残りからメモリ長だけ切り出す
+                        CapturePointer contentptr = Du.memorycapptr.get(t.memoryinstruction.captureId-1);//メモリ内容を取得
+                       
+                        int open = contentptr.open;
+                        int close = contentptr.close;
+
+                        if(open == -1 || close == -1){
+                            System.out.println("index error. Backtrack to level " + (level-1));
+                            return;
+                        }
+                        int len = close - open;
+
+                        String prefix;
+                        if(Du.remain.length() >= len ){
+                            prefix = Du.remain.substring(0,len);//現在の入力の残りからメモリ長だけ切り出す
                         }else{
                             prefix = Du.remain;
-                        }                            
-                         
+                        }
+
+                        String content = Du.input.substring(open,close);
+                 
                         if(prefix.equals(content)){//メモリ内容と現在の入力の残りを比較
+                            /*
                             for(int i=0;i<Du.memorystates.size();i++){//openメモリへの書き込み
                                 if(Du.memorystates.get(i) == true){//openメモリならば
                         
-                                    if(Du.memorycontents.get(i) == null){//ヌルチェック
-                                        Du.memorycontents.set(i,"");//メモリ内容は空とする
+                                    if(Du.memorycapptr.get(i) == null){//ヌルチェック
+                                        Du.memorycapptr.set(i,"");//メモリ内容は空とする
                                     }                                             
                                     
-                                    Du.memorycontents.set(i,Du.memorycontents.get(i)+prefix);//指定のメモリに後ろから切り出したものを書き込む
+                                    Du.memorycapptr.set(i,Du.memorycapptr.get(i)+prefix);//指定のメモリに後ろから切り出したものを書き込む
                         
                                 }
                    
-                            }
-                            //Du.memorycontents.set(t.memoryinstruction.captureId-1,"");//メモリ内容はリセットする
+                            }*/
 
-                            Du.remain = Du.remain.substring(content.length());//現在の入力の残りからメモリの内容を消費する
+                            //Du.memorycapptr.set(t.memoryinstruction.captureId-1,"");//メモリ内容はリセットする
+
+                            Du.remain = Du.remain.substring(len);//現在の入力の残りからメモリの内容を消費する
                             //System.out.println(t);
-                            simulation(M,Du,level+1);
+                            simulation(M,Du,readpos + len ,level+1);
                             
                         }else{
                             //System.err.println("m-transition error");//メモリ内容と現在の入力の残りに食い違いがある

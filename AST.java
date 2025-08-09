@@ -201,7 +201,35 @@ public class AST extends PCREBaseVisitor<RegexNode> {
             case "\\W": 
                 return new NegNode(word);
 
+            case "\\s": // [\r\n\t\f\v ]　 
+                RegexNode blank =  new CharNode(" ");//空白1字分
+                RegexNode alphabet = new UnionNode(
+                                        new CharNode("r"),new UnionNode(
+                                            new CharNode("n"),new UnionNode(
+                                                new CharNode("t"),new UnionNode(
+                                                    new CharNode("f"),new CharNode("v")
+                                                )
+                                            )
+                                        )
+                                    );
+                
 
+                return new UnionNode(blank,new ConcatNode(new CharNode("\\"),alphabet));
+            
+             case "\\S": // [^\r\n\t\f\v ]　 
+                RegexNode notblank =  new CharNode(" ");//空白1字分
+                RegexNode notalphabet = new UnionNode(
+                                        new CharNode("r"),new UnionNode(
+                                            new CharNode("n"),new UnionNode(
+                                                new CharNode("t"),new UnionNode(
+                                                    new CharNode("f"),new CharNode("v")
+                                                )
+                                            )
+                                        )
+                                    );
+                
+
+                return new NegNode(new UnionNode(notblank,new ConcatNode(new CharNode("\\"),notalphabet)));
 
             default:
                 return null;
