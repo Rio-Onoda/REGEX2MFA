@@ -50,7 +50,7 @@ public class Main {
         Configuration C = new Configuration();
         C = simulator.init(M,w);//初期化
 
-        simulator.simulation(M,C,0);//シミュレーション
+        simulator.simulation(M,C,0,0);//シミュレーション
 
     }
 } 

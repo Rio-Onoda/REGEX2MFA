@@ -233,26 +233,20 @@ public class GenMFA {
     private MFA NegMFA(NegNode node) {
         MFA submfa = builders(node.child);
         String sigmaall="^";
-        State start = newState();
-        State end = newState();
+        State start = submfa.start;
+        State end   = submfa.end;
 
         List<Transition> transitions = new ArrayList<>(submfa.transitions);
 
         for (Transition t : submfa.transitions) {
             if(!t.symbol.equals("ε")) {
                 sigmaall += t.symbol;
-                start = t.q;
-                end = t.p;
             }
         }
         System.out.println("new symbol:"+ sigmaall);
 
-
-        for (Transition t : submfa.transitions) {
-            if(!t.symbol.equals("ε") && (t.symbol.length() < 2 || sigmaall.contains(t.symbol))) {
-                transitions.remove(t);
-            }
-        }
+        for (Transition t : submfa.transitions)  transitions.remove(t);
+        
         transitions.add(new Transition(start, sigmaall, end, new Memoryinstruction(0, STAY)));//遷移を追加
 
         MFA mfa = new MFA();
