@@ -28,15 +28,15 @@ public class Main {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PCREParser parser = new PCREParser(tokens);
         ParseTree root = parser.pcre();
-        //System.out.println("構文木");
-        //System.out.println(root.toStringTree(parser));
+        System.out.println("構文木");
+        System.out.println(root.toStringTree(parser));
         
         AST myast = new AST();
         RegexNode astroot = myast.visit(root);//ASTの根ノード
         if(astroot == null) throw new IllegalArgumentException("AST構築失敗");
 
-        //System.out.println("AST");
-        //System.out.println(astroot.toString());
+        System.out.println("AST");
+        System.out.println(astroot.toString());
 
         GenMFA mfa = new GenMFA();
         SimMFA simulator = new SimMFA();

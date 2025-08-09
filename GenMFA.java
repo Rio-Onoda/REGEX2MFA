@@ -12,10 +12,10 @@ class State {
 class Transition {
     State q;
     State p;
-    char symbol; // q --symbol--> p
+    String symbol; // q --symbol--> p
     Memoryinstruction memoryinstruction;
 
-    public Transition(State q, char symbol, State p, Memoryinstruction meminst) {// constructor
+    public Transition(State q, String symbol, State p, Memoryinstruction meminst) {// constructor
         this.q = q;
         this.symbol = symbol;
         this.p = p;
@@ -33,7 +33,7 @@ class Transition {
             default: memInstr = "UNKNOWN"; break;
     }
     return String.format("δ(%d, %s) = %d   [mem: (%d, %s)]",
-        q.id, symbol == 'ε' ? "ε" : symbol, p.id,
+        q.id, symbol.equals("ε") ? "ε" : symbol, p.id,
         memoryinstruction.captureId, memInstr
     );
 }   
@@ -86,11 +86,17 @@ public class GenMFA {
             return CaptureMFA((CaptureNode) node);     
         } else if(node instanceof NonCaptureNode) {
             return NonCaptureMFA((NonCaptureNode) node);
-        }
-        else if (node instanceof BackrefNode) {
+        }else if (node instanceof BackrefNode) {
             return BackrefMFA((BackrefNode) node);     
+        }else if (node instanceof RangeNode) {
+           return RangeMFA((RangeNode) node);
+        }else if (node instanceof NegNode) {
+            return NegMFA((NegNode) node);
+        }else if (node instanceof WildNode){
+            return WildMFA((WildNode) node);
+        } else {
+            throw new IllegalArgumentException("Unknown node type: " + node.getClass().getSimpleName());
         }
-        throw new IllegalArgumentException("Unknown node type");
     }
 
     private MFA UnitMFA(CharNode node) {
@@ -106,11 +112,24 @@ public class GenMFA {
         return submfa;
     }
 
+    private MFA RangeMFA(RangeNode node) {
+        State s1 = newState();
+        State s2 = newState();
+        Transition t = new Transition(s1, node.from + "-" + node.to, s2, 
+        new Memoryinstruction(0, STAY));
+
+        MFA submfa = new MFA();
+        submfa.start = s1;
+        submfa.end = s2;
+        submfa.transitions = List.of(t);
+        return submfa;
+    }
+
     private MFA ConcatMFA(ConcatNode node) {
         MFA m1 = builders(node.left);
         MFA m2 = builders(node.right);
 
-        Transition t = new Transition(m1.end, 'ε', m2.start, new Memoryinstruction(0, STAY)); // EPSILON Transition
+        Transition t = new Transition(m1.end, "ε", m2.start, new Memoryinstruction(0, STAY)); // EPSILON Transition
 
         List<Transition> transitions = new ArrayList<>();
         transitions.addAll(m1.transitions);
@@ -135,10 +154,10 @@ public class GenMFA {
         List<Transition> transitions = new ArrayList<>(m1.transitions);
         transitions.addAll(m2.transitions);
 
-        transitions.add(new Transition(start, 'ε', m1.start, new Memoryinstruction(0, STAY))); // ε Transition to m1
-        transitions.add(new Transition(start, 'ε', m2.start, new Memoryinstruction(0, STAY))); // ε Transition to m2
-        transitions.add(new Transition(m1.end, 'ε', end,new Memoryinstruction(0, STAY))); // ε Transition from m1 to end
-        transitions.add(new Transition(m2.end, 'ε', end, new Memoryinstruction(0, STAY))); // ε Transition from m2 to end
+        transitions.add(new Transition(start, "ε", m1.start, new Memoryinstruction(0, STAY))); // ε Transition to m1
+        transitions.add(new Transition(start, "ε", m2.start, new Memoryinstruction(0, STAY))); // ε Transition to m2
+        transitions.add(new Transition(m1.end, "ε", end,new Memoryinstruction(0, STAY))); // ε Transition from m1 to end
+        transitions.add(new Transition(m2.end, "ε", end, new Memoryinstruction(0, STAY))); // ε Transition from m2 to end
 
         MFA submfa = new MFA();
         submfa.start = start;
@@ -154,10 +173,10 @@ public class GenMFA {
 
         List<Transition> transitions = new ArrayList<>(mfa.transitions);
 
-        transitions.add(new Transition(start, 'ε', mfa.start, new Memoryinstruction(0, STAY))); // ε Transition to nfa start
-        transitions.add(new Transition(mfa.end, 'ε', end, new Memoryinstruction(0, STAY))); // ε Transition from nfa end to new end
-        transitions.add(new Transition(mfa.end, 'ε', mfa.start, new Memoryinstruction(0, STAY))); // ε Transition from nfa end to nfa start (for repetition)
-        transitions.add(new Transition(start, 'ε', end, new Memoryinstruction(0, STAY))); // ε Transition from start to end (for empty string)
+        transitions.add(new Transition(start, "ε", mfa.start, new Memoryinstruction(0, STAY))); // ε Transition to nfa start
+        transitions.add(new Transition(mfa.end, "ε", end, new Memoryinstruction(0, STAY))); // ε Transition from nfa end to new end
+        transitions.add(new Transition(mfa.end, "ε", mfa.start, new Memoryinstruction(0, STAY))); // ε Transition from nfa end to nfa start (for repetition)
+        transitions.add(new Transition(start, "ε", end, new Memoryinstruction(0, STAY))); // ε Transition from start to end (for empty string)
 
         MFA submfa = new MFA();
         submfa.start = start;
@@ -173,11 +192,11 @@ public class GenMFA {
         State end = newState();
     
         // o-transition（メモリ開始）
-        Transition t1 = new Transition(start, 'ε', submfa.start,
+        Transition t1 = new Transition(start, "ε", submfa.start,
         new Memoryinstruction(node.captureid, OPEN)); 
 
         // c-transition（メモリ終了）
-        Transition t2 = new Transition(submfa.end, 'ε', end,
+        Transition t2 = new Transition(submfa.end, "ε", end,
             new Memoryinstruction(node.captureid, CLOSE)); 
 
         MFA mfa = new MFA();
@@ -200,7 +219,7 @@ public class GenMFA {
     private MFA BackrefMFA(BackrefNode node) {
         State start = newState();
         State end = newState();
-        Transition t = new Transition(start, '\\', end, 
+        Transition t = new Transition(start, "\\", end, 
         new Memoryinstruction(node.captureid,VARIABLE));
         
         MFA mfa = new MFA();
@@ -209,6 +228,52 @@ public class GenMFA {
         mfa.transitions = List.of(t); // Add the transition to the MFA object;
         
         return mfa;
+    }
+
+    private MFA NegMFA(NegNode node) {
+        MFA submfa = builders(node.child);
+        String sigmaall="^";
+        State start = newState();
+        State end = newState();
+
+        List<Transition> transitions = new ArrayList<>(submfa.transitions);
+
+        for (Transition t : submfa.transitions) {
+            if(!t.symbol.equals("ε")) {
+                sigmaall += t.symbol;
+                start = t.q;
+                end = t.p;
+            }
+        }
+        System.out.println("new symbol:"+ sigmaall);
+
+
+        for (Transition t : submfa.transitions) {
+            if(!t.symbol.equals("ε") && (t.symbol.length() < 2 || sigmaall.contains(t.symbol))) {
+                transitions.remove(t);
+            }
+        }
+        transitions.add(new Transition(start, sigmaall, end, new Memoryinstruction(0, STAY)));//遷移を追加
+
+        MFA mfa = new MFA();
+        mfa.start = submfa.start;
+        mfa.end = submfa.end;
+        mfa.transitions = transitions;
+
+        return mfa;
+    }
+
+    private MFA WildMFA(WildNode node) {
+        State s1 = newState();
+        State s2 = newState();
+        Transition t = new Transition(s1, "..", s2, 
+        new Memoryinstruction(0, STAY));
+
+        MFA submfa = new MFA();
+        submfa.start = s1;
+        submfa.end = s2;
+        submfa.transitions = List.of(t);
+        return submfa;
     }
     
     public void printtransitions(MFA mfa) {

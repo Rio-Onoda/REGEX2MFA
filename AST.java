@@ -1,4 +1,5 @@
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
+import java.util.List;
 
 abstract class RegexNode {}
 
@@ -49,7 +50,66 @@ public class AST extends PCREBaseVisitor<RegexNode> {
             switch (q) {
                 case "*": return new StarNode(base);//0回以上
                 case "+": return new ConcatNode(base, new StarNode(base));//1回以上
-                default: throw new IllegalArgumentException("unknown quantifier: " + q);
+
+                default: 
+                    if ((q.contains("{"))&&(q.contains("}"))){
+                        int len = q.length();
+                        boolean nolimit = false;
+                        if(len < 3) throw new IllegalArgumentException("unknown quantifier: " + q);
+
+                        if(q.contains(",")){
+                            String r = q.substring(1,len-1);
+                            
+                            if((q.substring(len-2,len-1)).equals(",")){
+                                nolimit = true;//下限のみに移行
+                            }else{//上限あり
+
+                                String [] range = r.split(",");
+                                int s = Integer.parseInt(range[0]);
+                                int t = Integer.parseInt(range[1]);
+                                
+                                RegexNode nodeelem = base;
+                                for (int i = 1;i < s; i++){
+                                    nodeelem = new ConcatNode(nodeelem,base);
+                                }
+
+                                RegexNode nodelst = nodeelem;
+                                for (int i = s;i < t; i++){
+                                    nodeelem = new ConcatNode(nodeelem,base);
+                                    nodelst = new UnionNode(nodelst,nodeelem);
+                                }
+                            
+                                return nodelst;
+                            }
+                        }
+                        
+                        if((!q.contains(",")) || nolimit){//下限のみ
+                            String r;
+
+                            if (nolimit) r = q.substring(1,len-2);
+                            else  r = q.substring(1,len-1);
+
+                            int s = Integer.parseInt(r);
+
+                            if(s<1){
+                                return new StarNode(base);//0回以上
+                            }else{ 
+                                RegexNode node = base;
+                                for (int i = 1;i < s; i++){
+                                    node = new ConcatNode(node,base);
+                                }
+
+                                node = new ConcatNode(node,new StarNode(base));
+
+                                return node;
+                            }
+
+                           
+                        
+                        }
+                    }else{
+                        throw new IllegalArgumentException("unknown quantifier: " + q);
+                    }
             }
         }
         
@@ -70,15 +130,23 @@ public class AST extends PCREBaseVisitor<RegexNode> {
             return visitBackreference(ctx.backreference());
         }
 
+        if (ctx.character_type()!= null) {
+            return visitCharacter_type(ctx.character_type());
+        }
+
+        if (ctx.character_class()!= null) {
+            return visitCharacter_class(ctx.character_class());
+        }
+
         if(ctx.getText().equals("ε")) {
-            return new CharNode('ε'); // εを表すノード
+            return new CharNode("ε"); // εを表すノード
         }
         throw new IllegalArgumentException("未対応のAtom: " + ctx.getText());
     }
     
     @Override
     public RegexNode visitLetter(PCREParser.LetterContext ctx) {
-    return new CharNode(ctx.getText().charAt(0));
+    return new CharNode(ctx.getText());
     }
 
     @Override
@@ -107,5 +175,104 @@ public class AST extends PCREBaseVisitor<RegexNode> {
         return new BackrefNode(refId);
     }
 
+    @Override
+    public RegexNode visitCharacter_type(PCREParser.Character_typeContext ctx){
+        String seq = ctx.getText();
+        RegexNode salpha = new RangeNode("a","z");
+        RegexNode lalpha = new RangeNode("A","Z");
+        RegexNode digit = new RangeNode("0","9");
+        RegexNode under = new CharNode("_");
+        RegexNode word = new UnionNode(new UnionNode(new UnionNode(salpha,lalpha), digit),under);
+               
+
+        switch (seq){
+            case ".":
+                return new WildNode();
+            
+            case "\\d":
+                return digit;
+
+            case "\\D":
+                return new NegNode(digit);
+           
+            case "\\w": 
+                return word; 
+            
+            case "\\W": 
+                return new NegNode(word);
+
+
+
+            default:
+                return null;
+
+        }
+
     
+    }
+
+    @Override
+    public RegexNode visitCharacter_class(PCREParser.Character_classContext ctx){
+        System.out.println("charclass:"+ctx.getText());
+        // character_class_atom()はリストなので、すべてを処理する必要がある
+        
+        if (ctx.character_class_atom() != null && !ctx.character_class_atom().isEmpty()) {
+            RegexNode node = visitCharacter_class_atom(ctx.character_class_atom().get(0));
+            
+            for (int i = 1; i < ctx.character_class_atom().size(); i++) {
+                node = new UnionNode(node, visitCharacter_class_atom(ctx.character_class_atom().get(i)));
+            }
+
+            if (ctx.getText().charAt(1)=='^'){
+            // 否定の文字クラス
+                System.out.println("NegNode created");
+                return new NegNode(node);
+            }
+        
+            return node;
+        
+        }
+        return null;
+    }
+
+    @Override
+    public RegexNode visitCharacter_class_atom(PCREParser.Character_class_atomContext ctx){
+        System.out.println("charatom:"+ ctx.getText());
+        if (ctx.character_class_range() != null) {
+            return visitCharacter_class_range(ctx.character_class_range());
+        }
+            
+       
+        return new CharNode(ctx.getText());
+    }
+
+    @Override
+    public RegexNode visitCharacter_class_range(PCREParser.Character_class_rangeContext ctx){
+        System.out.println("charrange:"+ ctx.getText());//0-9A-Za-z
+        if (ctx.character_class_range_atom() != null && !ctx.character_class_range_atom().isEmpty()) {
+            
+            String from = ctx.character_class_range_atom().get(0).getText();
+            String to   = ctx.character_class_range_atom().get(1).getText();
+            if (from.length() != 1 || to.length() != 1 || from.charAt(0) > to.charAt(0)) {
+                throw new IllegalArgumentException("Invalid character class range: " + ctx.getText());
+            }
+
+            RegexNode node = new RangeNode(from,to);//from,toをラベルとする遷移を作る
+
+            return node;
+        
+        }
+        return null;
+    }
+
+    /*
+    @Override
+    public RegexNode visitCharacter_class_range_atom(PCREParser.Character_class_range_atomContext ctx){
+        System.out.println("charrangeatom:"+ ctx.getText());
+        if (ctx.getText().length() == 1) {
+            return new CharNode(ctx.getText().charAt(0));
+        } 
+    }
+    */
+
 }
