@@ -17,40 +17,30 @@ public class Main {
 
         System.out.println("正規表現: " + regex);
         System.out.println("入力文字列: "+ w) ;
-        
-
-
-        //reader.readLine();
-        //test
-        //"((?:a|b)*)\g1" abaaabaa
-
+    
         PCRELexer lexer = new PCRELexer(CharStreams.fromString(regex));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PCREParser parser = new PCREParser(tokens);
         ParseTree root = parser.pcre();
-        System.out.println("構文木");
-        System.out.println(root.toStringTree(parser));
+        //System.out.println("構文木");
+        //System.out.println(root.toStringTree(parser));
         
         AST myast = new AST();
         RegexNode astroot = myast.visit(root);//ASTの根ノード
         if(astroot == null) throw new IllegalArgumentException("AST構築失敗");
 
-        System.out.println("AST");
-        System.out.println(astroot.toString());
+        //System.out.println("AST");
+        //System.out.println(astroot.toString());
 
         GenMFA mfa = new GenMFA();
         SimMFA simulator = new SimMFA();
         MFA M = mfa.builders(astroot);//ASTからMFA
         mfa.printtransitions(M);//遷移を表示
-        System.out.println("qi:" + M.start.id + " qf:" + M.end.id);
-       
-        
-        //reader.readLine();
+        //System.out.println("qi:" + M.start.id + " qf:" + M.end.id);
 
         Configuration C = new Configuration();
         C = simulator.init(M,w);//初期化
-
         simulator.simulation(M,C,0,0);//シミュレーション
-
+        
     }
 } 
